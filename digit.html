@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>digit recogonizer </title>
+    <link rel="icon" type="image/gif/png" href="{{ url_for('static',filename='img/log.png') }}">
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet">
+    <link href="{{ url_for('static', filename='fonts/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/Pretty-Footer.css') }}" rel="stylesheet">
+
+
+
+
+<script type="text/javascript">
+
+   $(function(){
+       var canvasObj = document.getElementById("canvas");
+       emptyImage = canvasObj.toDataURL();
+       $(".myButton").click(function(){
+           $("#warning").text("");
+            var newcanvasObj = document.getElementById("canvas");
+            var img = newcanvasObj.toDataURL('image/png');
+           if(img==emptyImage){
+               $("#warning").text("Please draw the digit !");
+           }else{
+              $("#output").text("processing....").css({'font-size':'30px','margin':'60px auto', 'text-align':'center'});
+              var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+              $.ajax({
+                  type: "POST",
+                  url: $SCRIPT_ROOT + "/_predicthdr/",
+                  data: img,
+                  success: function(data){
+
+                     $('#output').text(data).css({'font-size':'80px'});
+                  }
+              });
+          }
+         });
+    });
+</script>
+<script type="text/javascript">
+
+(function()
+{
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext( "2d" );
+canvas.width = 280;
+canvas.height = 280;
+
+var Mouse = { x: 0, y: 0 };
+var lastMouse = { x: 0, y: 0 };
+context.fillStyle="white";
+context.fillRect(0,0,canvas.width,canvas.height);
+context.color = "black";
+context.lineWidth = 10;
+context.lineJoin = context.lineCap = 'round';
+
+debug();
+
+canvas.addEventListener( "mousemove", function( e )
+{
+    lastMouse.x = Mouse.x;
+    lastMouse.y = Mouse.y;
+
+    Mouse.x = e.pageX - this.offsetLeft;
+    Mouse.y = e.pageY - this.offsetTop;
+    }, false );
+
+canvas.addEventListener( "mousedown", function( e )
+{
+    canvas.addEventListener( "mousemove", onPaint, false );
+
+}, false );
+
+canvas.addEventListener( "mouseup", function()
+{
+    canvas.removeEventListener( "mousemove", onPaint, false );
+
+}, false );
+
+
+
+var onPaint = function()
+{
+    context.lineWidth = context.lineWidth;
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.strokeStyle = context.color;
+
+    context.beginPath();
+    context.moveTo( lastMouse.x, lastMouse.y );
+    context.lineTo( Mouse.x, Mouse.y );
+    context.closePath();
+    context.stroke();
+};
+
+function debug()
+{
+    /* CLEAR BUTTON */
+    var clearButton = $( "#clearButton" );
+
+    clearButton.on( "click", function()
+    {
+            $('#output').text('');
+            context.clearRect( 0, 0, 280, 280 );
+            context.fillStyle="white";
+            context.fillRect(0,0,canvas.width,canvas.height);
+
+    });
+}
+
+
+}());
+
+// this prevents the site from idling
+// since it takes the flask app about 20 seconds to start up again
+var http = require("http");
+setInterval(function() {
+    http.get("http://localhost:5000");
+}, 300000); // every 5 minutes (300000)
+
+</script>
+</head>
+<body>
+    <div class="container-fluid" style="margin:20px auto; background:linear-gradient(0deg, #ccc, #f0f0f0)">
+
+    <div class="row">
+        <div class="col-md-12">
+        <h2 style="text-align:center;color:#4582ec"> Handwritten Digit Recognizer </h2>
+        </div>
+    </div>
+
+    <canvas id="canvas" class='img-responsive'style="border: 8px solid black;border-radius: 5px; cursor: crosshair;float:left;"></canvas>
+
+
+    <h1 style="text-align:center;color:#5bc0de;">Result</h1>
+    <p id="output" style="text-align:center;margin:40px auto;font-size:70px">...</p>
+    <div class="row">
+
+        <div class="col-md-12">
+            <input type="button" id="clearButton" value="Clear" style="background-color:#5bc0de;">
+            <a href="#" class="myButton"><span style=" font-weight: 400;font-size:30px; font-family: 'Open Sans', Helvetica;margin-left:30px;"> Predict </span></a>
+            <p id="warning" style="text-align:center;margin:20px auto;font-size:20px;color:red"></p>
+            <h4 style="text-align:center; margin:10px auto"> Check out the Code below</h4>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
