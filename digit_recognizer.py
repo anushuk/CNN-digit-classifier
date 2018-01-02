@@ -1,6 +1,7 @@
 import  re
 import os
-from scipy.misc import imread, imresize
+from skimage.transform import resize
+from PIL import Image
 
 from keras.models import load_model
 import base64
@@ -23,9 +24,9 @@ def convertImage(imgData1):
 def digit(imgData):
     convertImage(imgData)
 
-    x = imread('output.png',mode='L')
+    x=  Image.open('output.png')
     x = np.invert(x)
-    x = imresize(x,(28,28))
+    x = resize(x,(28,28),order=1, mode='constant', cval=0, clip=False, preserve_range=True)
     x = x.reshape(1,28,28,1)
 
     with graph.as_default():
