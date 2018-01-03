@@ -27,6 +27,7 @@ def digit(imgData):
     x=  Image.open('output.png')
     x = np.invert(x)
     x = resize(x,(28,28),order=1, mode='constant', cval=0, clip=False, preserve_range=True)
+    x= x.astype(int)
     x = x.reshape(1,28,28,1)
 
     with graph.as_default():
