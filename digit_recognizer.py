@@ -24,7 +24,7 @@ def convertImage(imgData1):
 def digit(imgData):
     convertImage(imgData)
 
-    x=  Image.open('output.png')
+    x=  Image.open('output.png').convert('L')
     x = np.invert(x)
     x = resize(x,(28,28),order=1, mode='constant', cval=0, clip=False, preserve_range=True)
     x= x.astype(int)
